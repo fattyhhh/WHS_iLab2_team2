@@ -1,0 +1,14 @@
+gensim
+matplotlib
+nltk
+pandas
+plotly
+praw==7.7.0
+pyLDAvis
+scikit_learn
+setuptools
+spacy
+streamlit==1.22.0
+sumy
+textblob
+wordcloud

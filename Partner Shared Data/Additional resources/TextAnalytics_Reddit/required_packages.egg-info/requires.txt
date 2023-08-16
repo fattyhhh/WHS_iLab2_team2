@@ -1,0 +1,10 @@
+streamlit
+praw
+nltk
+matplotlib
+wordcloud
+plotly
+spacy
+gensim
+pyLDAvis
+sumy
