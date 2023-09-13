@@ -27,14 +27,25 @@ urls = pd.read_excel('yellowpages2.xlsx')
 urls = urls[['name','website']]
 
 # scrape website text and store in dataframe
+# just demo for now
 with requests.Session() as s:
-    for i in range(5):
+    for i in range(2,4):
         try:
             r = s.get(urls['website'][i], verify=False, headers=headers)
             soup = BeautifulSoup(r.text, 'html.parser')
             text = soup.get_text()
             text = text.replace('\n', '').replace('\t', '')
+            links = soup.find_all('a', href=True)
+            links = [link['href'] for link in links]
+            links = [link for link in links if (link.startswith(urls['website'][i]) and link.endswith('/'))]
+            #links2 = [link for link in links if link.startswith('/')]
+            #links3 = []
+            #for x in len(links2):
+            #    links3[x] = urls['website'][i] + links2[x]
+            #print(links3)
+            #links = links1 + links3
             urls['text'][i] = text
+            urls['son_links'][i] = links
         except Exception as e:
             urls['text'] = 'error'
             pass    
