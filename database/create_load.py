@@ -2,6 +2,7 @@ import psycopg2
 import pandas as pd
 import ast
 
+
 # create variables to store database connection details
 db_name = 'postgres'
 db_user = 'postgres'
@@ -9,27 +10,12 @@ db_password = 'postgres'
 db_host = 'localhost'
 db_port = '5432'
 
-
-# class a connector to initiate the connection to the database
-class Connector:
-    def __init__(self, db_name, db_user, db_password, db_host, db_port):
-        self.conn = psycopg2.connect(
-            database=db_name,
-            user=db_user,
-            password=db_password,
-            host=db_host,
-            port=db_port
-        )
-        self.cursor = self.conn.cursor()
-
-    def close_connection(self):
-        self.conn.close()
-
 # connect to the database
-conn = Connector(db_name, db_user, db_password, db_host, db_port).conn
-
+conn = psycopg2.connect(db_host,db_name,db_user,db_password)
 # create cursor object to execute SQL queries
 cursor = conn.cursor()
+
+print(cursor.statusmessage)
 
 # create schema
 cursor.execute('CREATE SCHEMA IF NOT EXISTS whs_ilab2;')
@@ -37,10 +23,6 @@ cursor.execute('CREATE SCHEMA IF NOT EXISTS whs_ilab2;')
 # drop the two tables if they already exist
 cursor.execute('drop table if exists whs_ilab2.web_content;')
 cursor.execute('drop table if exists whs_ilab2.abn;')
-
-# drop the constraints if they already exist
-cursor.execute('alter table if exists whs_ilab2.web_content drop constraint if exists web_content_pkey;')
-cursor.execute('alter table if exists whs_ilab2.abn drop constraint if exists abn_pkey;')
 
 # create web_content table
 cursor.execute('''
@@ -64,6 +46,7 @@ cursor.execute('''
 
 # load data from all_text_4.xlsx into a pandas dataframe
 df_contents = pd.read_excel('all_text_4.xlsx')
+
 
 # change dataframe type to align with the database table
 df_contents['website'] = df_contents['website'].astype(str)
@@ -100,11 +83,9 @@ for i in range(len(df_abn)):
          df_abn.iloc[i]['location'],
          df_abn.iloc[i]['abn']))
 
+
 # commit change
 conn.commit()
-
-# select from the web_content table
-print(cursor.execute('select * from whs_ilab2.web_content'))
 
 
 
