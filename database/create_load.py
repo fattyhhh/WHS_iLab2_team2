@@ -65,6 +65,12 @@ cursor.execute('''
 # load data from all_text_4.xlsx into a pandas dataframe
 df_contents = pd.read_excel('all_text_4.xlsx')
 
+# change dataframe type to align with the database table
+df_contents['website'] = df_contents['website'].astype(str)
+df_contents['name'] = df_contents['name'].astype(str)
+df_contents['text'] = df_contents['text'].astype(str)
+df_contents['sublinkstext'] = df_contents['sublinkstext'].astype(str)
+
 # load data into content table
 for i in range(len(df_contents)):
     try: 
@@ -96,6 +102,11 @@ for i in range(len(df_abn)):
 
 # commit change
 conn.commit()
+
+# select from the web_content table
+print(cursor.execute('select * from whs_ilab2.web_content'))
+
+
 
 # close connection
 conn.close()
