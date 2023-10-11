@@ -4,7 +4,7 @@ from config import set_app_config, set_session_state, set_session_states, displa
 set_session_states(['name', 'postcode', 'ABN', 'number of results'])
 
 set_app_config()
-st.title('Company Search - Falls Related Construction companies')
+st.title('Company Search - Falls Related Construction Companies')
 
 st.header("Search Information Details")
 
