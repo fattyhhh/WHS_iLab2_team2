@@ -11,11 +11,9 @@ db_host = 'localhost'
 db_port = '5432'
 
 # connect to the database
-conn = psycopg2.connect(db_host,db_name,db_user,db_password)
+conn = psycopg2.connect(database=db_name, user=db_user, password=db_password, host=db_host, port=db_port)
 # create cursor object to execute SQL queries
 cursor = conn.cursor()
-
-print(cursor.statusmessage)
 
 # create schema
 cursor.execute('CREATE SCHEMA IF NOT EXISTS whs_ilab2;')
