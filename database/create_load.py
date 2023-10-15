@@ -1,6 +1,5 @@
 import psycopg2
 import pandas as pd
-import ast
 
 
 # create variables to store database connection details
@@ -22,14 +21,18 @@ cursor.execute('CREATE SCHEMA IF NOT EXISTS whs_ilab2;')
 cursor.execute('drop table if exists whs_ilab2.web_content;')
 cursor.execute('drop table if exists whs_ilab2.abn;')
 
-# create web_content table
+# create temp table
 cursor.execute('''
-    create table if not exists whs_ilab2.web_content (
+    create table if not exists whs_ilab2.temp (
                name text not null,
                website text null,
-               content text null,
-               sublinks text[] null,
-               subcontents text null)
+               location text null,
+               postcode int null,
+               detail_url text null,
+               abn text null,
+               abn_look_up text null,
+               contents text null,
+               abn_content text null)
                ''')
 
 # create abn table
@@ -41,33 +44,6 @@ cursor.execute('''
               abn text null)
               ''')
 
-
-# load data from all_text_4.xlsx into a pandas dataframe
-df_contents = pd.read_excel('all_text_4.xlsx')
-
-
-# change dataframe type to align with the database table
-df_contents['website'] = df_contents['website'].astype(str)
-df_contents['name'] = df_contents['name'].astype(str)
-df_contents['text'] = df_contents['text'].astype(str)
-df_contents['sublinkstext'] = df_contents['sublinkstext'].astype(str)
-
-# load data into content table
-for i in range(len(df_contents)):
-    try: 
-        cursor.execute('''
-            insert into whs_ilab2.web_content (name, website, content, sublinks, subcontents)
-            values (%s, %s, %s, %s, %s)''',
-            (df_contents.iloc[i]['name'],
-            df_contents.iloc[i]['website'],
-            df_contents.iloc[i]['text'],
-            ast.literal_eval(df_contents.iloc[i]['sublinks']),
-            df_contents.iloc[i]['sublinkstext']))
-    except:
-        pass
-
-# commit change 
-conn.commit()
 # read data from yellowpages5.xlsx into a pandas dataframe
 df_abn = pd.read_excel('yellowpages5.xlsx')
 

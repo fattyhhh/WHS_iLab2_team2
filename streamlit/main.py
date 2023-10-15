@@ -1,33 +1,49 @@
 import streamlit as st
-from config import set_app_config, set_session_states, display_session_state
-import psycopg2
-import pandas as pd
-from search import results
+from search import Search
 
 
-set_session_states(['name', 'postcode', 'ABN', 'number of results', 'activity'])
 
-set_app_config()
+
+st.set_page_config(
+        page_title="Company Search - Falls Related Construction companies",
+        page_icon= "🔍",
+        layout="centered",
+)
 st.title('Company Search - Falls Related Construction Companies')
 
-with st.expander("Streamlit Session State", expanded=False):
-    display_session_state()
+
 
 st.header("Search Information Details")
 
-st.text_input("Company Name", key='name')
+name = st.text_input("Company Name")
 
-st.text_input("Postcode", key='postcode') 
+postcode = st.text_input("Postcode") 
 
-st.text_input("ABN", key='ABN')
+abn = st.text_input("ABN")
 
-st.text_input("Number of results", key='number of results')
+num_results = st.text_input("Number of Results")
 
-st.text_input("Business Activity", key = 'activity')
+activity = st.text_input("Business Activity")
 
-st.button("Search")
 
 if st.button("Search"):
-    st.write("Searching...")
-    st.dataframe(results(st.session_state.name, st.session_state.postcode, st.session_state.ABN, st.session_state['number of results'], st.session_state.activity))
+    # Assign input values to session state
+    st.session_state.name = name
+    st.session_state.postcode = postcode
+    st.session_state.abn = abn
+    st.session_state.num_results = num_results
+    st.session_state.activity = activity
+    
+    # Perform the search using the session state values
+    search = Search(name, postcode, abn, num_results, activity)
+    
+    # run method to get result
+    search.get_result()
 
+    # display result
+    search_result = search.df_result
+
+    if search_result is not None:
+        st.table(search_result.assign(hack='').set_index('hack'))
+    else:
+        st.write("No results found.")
