@@ -1,17 +1,21 @@
 import pandas as pd
 
 
-def Abn_search(keywords, df1):
+def Abn_search(keywords,df):
     results = []
-    for keyword in keywords:
-        # Search 'web contents' column for keywords and extract corresponding data
-        filtered_data = df1[df1['web_content'].str.contains(keyword, case=False, na=False)]
-        for index, row in filtered_data.iterrows():
+    for index, row in df.iterrows():
+        content = row['Contents']
+        # Check if all keywords are present in the 'Contents' column
+        if all(keyword.lower() in content.lower() for keyword in keywords):
+            abn = row['abn_website'] if not pd.isnull(row['abn_website']) else (
+                row['abn_look_up'] if not pd.isnull(row['abn_look_up']) else row['abn']
+            )
             results.append({
-                'abn': row['abn_look_up'],
-                'name' : row['name'],
+                'abn': abn,
+                'name': row['name'],
                 'location': row['location'],
-                'website': row['website']
+                'website': row['website'],
+                'postcode': row['postcode']
             })
     # Convert the list of dictionaries to a DataFrame
     results_df = pd.DataFrame(results).drop_duplicates()
