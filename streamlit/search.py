@@ -81,7 +81,7 @@ class Search:
                 if value != None:
                             not_none_key.append(key)
             if len(not_none_key) == 0:
-                st.write('Caution: Company Name, Postcode and Abn .')
+                st.write('Caution: Company Name, Postcode and Abn are all empty.')
 
                 if self.num_of_rows == '':
                     query = f'''select * from whs_ilab2.temp;'''
