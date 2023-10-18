@@ -1,6 +1,6 @@
 import streamlit as st
 from search import Search
-
+import pandas as pd
 
 
 
@@ -12,8 +12,13 @@ st.set_page_config(
 st.title('Company Search - Falls Related Construction Companies')
 
 
-
+df_options= pd.read_excel('Bussiness_activities.xlsx',header=0)
+options = df_options["Activities"].to_list()
+# options=["apple", "banana", "cherry", "date"]
 st.header("Search Information Details")
+
+
+activity = st.multiselect("Business Activity",options)
 
 name = st.text_input("Company Name")
 
@@ -23,16 +28,16 @@ abn = st.text_input("ABN")
 
 num_results = st.text_input("Number of Results")
 
-activity = st.text_input("Business Activity")
 
 
 if st.button("Search"):
     # Assign input values to session state
+    st.session_state.activity = activity
     st.session_state.name = name
     st.session_state.postcode = postcode
     st.session_state.abn = abn
     st.session_state.num_results = num_results
-    st.session_state.activity = activity
+    
     
     # Perform the search using the session state values
     search = Search(name, postcode, abn, num_results, activity)
