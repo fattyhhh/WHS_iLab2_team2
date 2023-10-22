@@ -4,7 +4,7 @@ import re
 import pandas as pd
 from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from ABNscrap import getabn
+from a2.web_scrap.ABNscrap import getabn
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -20,6 +20,7 @@ headers = {
     'Sec-Fetch-Site': 'none',
     'Sec-Fetch-User': '?1'
 }
+# Scraping all information from yellow pages
 all_data = []
 with requests.Session() as s:
     for i in range(1, 30):
@@ -28,7 +29,7 @@ with requests.Session() as s:
         r = s.get(url_to, verify=False, headers=headers)
         soup = BeautifulSoup(r.text, 'html.parser')
         scripts = soup.find_all(lambda tag: tag.name == 'script' and not tag.attrs)
-        # print(scripts)
+        
         initial_state = {}
         for script in scripts:
             if 'INITIAL_STATE' in script.contents[0]:            
@@ -37,42 +38,36 @@ with requests.Session() as s:
                 initial_state = json.loads('{' + txt + '}')        
                 data = initial_state['model']['inAreaResultViews']
                 all_data.append(data)
-                # print(all_data)
+                
 
-
+#Due to the limit memmory space, so the extracted data from yellowpages are divided into 2
 all_data_1=all_data[:15]   
 all_data_2=all_data[15:]  
 data_csv_1 = []
 data_csv_2 = []
+# Scraping ABN lookup tool by using information from yellowpages
 with requests.Session() as rs1:
-    for data in all_data_1:
+    for data in all_data_1:# Get ABNs from yellowpages
         for row in data:
-            url = row['detailsLink']  # Replace with the actual URL of the webpage
-            # Send an HTTP GET request to the webpage
+            url = row['detailsLink']  
+            # Send a GET request to the webpage
             response = rs1.get(url, verify=False, headers=headers)
-            # Check if the request was successful (HTTP status code 200)
+            # Check if the request was successful
             if response.status_code == 200:
-                # Parse the HTML content of the webpage using BeautifulSoup
+                # Parse the HTML content 
                 soup = BeautifulSoup(response.text, 'html.parser')
                 # Find all elements with the tag <dd> and class "abn"
                 abn_elements = soup.find_all('dd', class_='abn')
                 # Check if any elements were found
                 if abn_elements:
                     # Extract and print the contents of each element
-                    # print("ABN Information:")
                     for abn_element in abn_elements:
                         abn_info = abn_element.get_text()
-                        # print(abn_info)
-                        # data_csv.append({'abn': abn_info})
                 else:
                     abn_info=None
             else:
-                print(f"Failed to fetch the webpage. Status code: {response.status_code}")
-
-
-            print(row['name'])
-            
-            
+                print(f"Failed to fetch the webpage. Status code: {response.status_code}")            
+            #Get ABN from ABN look up tool 
             get_abn= getabn(row['name'].replace(" ", "+").replace("&","%26"),row['categoryText'].split('-')[1][-4:])
 
             if len(get_abn)==0:
@@ -98,32 +93,25 @@ with requests.Session() as rs1:
 with requests.Session() as rs2:
     for data in all_data_2:
         for row in data:
-            url = row['detailsLink']  # Replace with the actual URL of the webpage
+            url = row['detailsLink']  
             # Send an HTTP GET request to the webpage
             response = rs2.get(url, verify=False, headers=headers)
-            # Check if the request was successful (HTTP status code 200)
+            # Check if the request was successful 
             if response.status_code == 200:
-                # Parse the HTML content of the webpage using BeautifulSoup
+                # Parse the HTML content 
                 soup = BeautifulSoup(response.text, 'html.parser')
                 # Find all elements with the tag <dd> and class "abn"
                 abn_elements = soup.find_all('dd', class_='abn')
                 # Check if any elements were found
                 if abn_elements:
                     # Extract and print the contents of each element
-                    # print("ABN Information:")
                     for abn_element in abn_elements:
                         abn_info = abn_element.get_text()
-                        # print(abn_info)
-                        # data_csv.append({'abn': abn_info})
                 else:
                     abn_info=None
             else:
                 print(f"Failed to fetch the webpage. Status code: {response.status_code}")
-
-
-            print(row['name'])
-            
-            
+            #Get ABN from ABN look up tool             
             get_abn= getabn(row['name'].replace(" ", "+").replace("&","%26"),row['categoryText'].split('-')[1][-4:])
 
             if len(get_abn)==0:
@@ -146,7 +134,7 @@ with requests.Session() as rs2:
                     'abn_look_up': get_abn
                 })
 
-
+#Merge two dataset and export to an xlsx file
 df1 = pd.DataFrame(data_csv_1)
 df2 = pd.DataFrame(data_csv_2)
 df = pd.concat([df1, df2])
