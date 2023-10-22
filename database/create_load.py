@@ -17,22 +17,21 @@ cursor = conn.cursor()
 # create schema
 cursor.execute('CREATE SCHEMA IF NOT EXISTS whs_ilab2;')
 
+
+
 # drop the two tables if they already exist
-cursor.execute('drop table if exists whs_ilab2.web_content;')
+cursor.execute('drop table if exists whs_ilab2.temp;')
 cursor.execute('drop table if exists whs_ilab2.abn;')
 
 # create temp table
 cursor.execute('''
     create table if not exists whs_ilab2.temp (
-               name text not null,
-               website text null,
-               location text null,
-               postcode int null,
-               detail_url text null,
-               abn text null,
-               abn_look_up text null,
-               contents text null,
-               abn_content text null)
+                name text not null,
+                website text null, 
+                location text null,
+                abn text null,
+                postcode text null
+               )
                ''')
 
 # create abn table
@@ -45,12 +44,14 @@ cursor.execute('''
                 abn text null,
                 abn_look_up text null,
                 contents text null,
-                postcode int null,
+                postcode text null,
                 abn_website text null)
               ''')
 
 # read data from yellowpages5.xlsx into a pandas dataframe
 df_abn = pd.read_excel('construction_data.xlsx')
+
+
 
 # load data into abn table
 for i in range(len(df_abn)):
@@ -61,11 +62,11 @@ for i in range(len(df_abn)):
          df_abn.iloc[i]['website'],
          df_abn.iloc[i]['location'],
          df_abn.iloc[i]['detail_url'],
-         df_abn.iloc[i]['abn'],
-         df_abn.iloc[i]['abn_look_up'],
-         df_abn.iloc[i]['contents'],
-         df_abn.iloc[i]['postcode'],
-         df_abn.iloc[i]['abn_website']))
+         str(df_abn.iloc[i]['abn']),
+         str(df_abn.iloc[i]['abn_look_up']),
+         df_abn.iloc[i]['Contents'],
+         str(df_abn.iloc[i]['postcode']),
+         str(pd.to_numeric(df_abn.iloc[i]['abn_website'], errors='coerce', downcast='integer'))))
          
 
 

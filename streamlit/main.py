@@ -39,16 +39,15 @@ if st.button("Search"):
     st.session_state.abn = abn
     st.session_state.num_results = num_results
     
-    
+    st.write(activity)
     # Perform the search using the session state values
     search = Search(name, postcode, abn, num_results, activity)
     
     # run method to get result
     search.get_result()
-
     # display result
     search_result = search.df_result
-    if not search_result.empty:
+    if search_result.empty == False:
         st.table(search_result.assign(hack='').set_index('hack'))
         df=search_result.copy()
         csv=df.to_csv(index=False).encode('utf-8')

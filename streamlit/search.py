@@ -22,22 +22,24 @@ class Search:
         cursor = self.con.cursor()
 
         cursor.execute('select * from whs_ilab2.abn')
-        df_abn = pd.DataFrame(cursor.fetchall())
+        columns_name = [desc[0] for desc in cursor.description]
+        df_abn = pd.DataFrame(cursor.fetchall(), columns = columns_name).reset_index(drop = True)
+        
 
-
-        if self.activity == '':
+        
+        if self.activity == []:
             # create query 
             not_none_key = []
             for key, value in {'name': self.name, 'postcode': self.postcode, 'abn': self.abn}.items():
-                
-                if value != '':
+                if value != [] and value != '':
                             not_none_key.append(key)
+            st.write(not_none_key)   
             if len(not_none_key) == 0:
                 st.write('Please enter at least one search criteria.')
             else:
-                name_str = f"name like '%{self.name}%'"
-                postcode_str = f'postcode = {self.postcode}'
-                abn_str = f"abn = '{self.abn}'"
+                name_str = f'name ~* {self.name}'
+                postcode_str = f"postcode = '{self.postcode}'"
+                abn_str = f'abn ~* {self.abn}'
 
                 reference = {'name': name_str, 'postcode': postcode_str, 'abn': abn_str}
 
@@ -48,78 +50,82 @@ class Search:
                 else:
                     where_clause = reference[not_none_key[0]] + ' and ' + reference[not_none_key[1]] + ' and ' + reference[not_none_key[2]]
                 if self.num_of_rows == '':
-                    query = f'''select * from whs_ilab2.abn where {where_clause};'''
+                    query = f'''select name, website, location, abn, postcode from whs_ilab2.abn where {where_clause};'''
 
                 else:
-                    query = f'''select * from whs_ilab2.abn where {where_clause} limit {self.num_of_rows};'''    
+                    query = f'''select name, website, location, abn, postcode from whs_ilab2.abn where {where_clause} limit {self.num_of_rows};'''    
                 # execute query
                 cursor.execute(query)
                 # fetch all the results
                 columns_name = [desc[0] for desc in cursor.description]
                 self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns_name).reset_index(drop = True)
+                st.write(1)
         # if business activity is not empty
-        elif self.activity != '':
-            activities = list(self.activity.split(', '))
+        elif self.activity != []:
+            activities = self.activity
             result_1 = Abn_search(activities, df_abn)
-            for i in range(len(df_abn)):
-                cursor.execute('''
-                insert into whs_ilab2.temp (name, website, location, postcode, abn, abn_look_up, contents, abn_content)
-                values (%s, %s, %s, %s, %s, %s, %s, %s)''',
-                (result_1.iloc[i]['name'],
-                 result_1.iloc[i]['website'],
-                 result_1.iloc[i]['location'],
-                 result_1.iloc[i]['postcode'],
-                 result_1.iloc[i]['abn'],
-                 result_1.iloc[i]['abn_look_up'],
-                 result_1.iloc[i]['contents'],
-                 result_1.iloc[i]['abn_content']))
-            
-            self.con.commit()
-
-            for key, value in {'name': self.name, 'postcode': self.postcode, 'abn': self.abn}.items():
+            if result_1.empty == False:
+                st.write([result_1 is None])
+                for i in range(len(result_1)):
+                    cursor.execute('''
+                    insert into whs_ilab2.temp (name, website, location, abn, postcode)
+                    values (%s, %s, %s, %s, %s)''',
+                    (result_1.iloc[i]['name'],
+                     result_1.iloc[i]['website'],
+                     result_1.iloc[i]['location'],
+                     result_1.iloc[i]['abn'],
+                     result_1.iloc[i]['postcode'],
+                    ))
+                        
+                    self.con.commit()
                 not_none_key = []
-                if value != None:
-                            not_none_key.append(key)
-            if len(not_none_key) == 0:
-                st.write('Caution: Company Name, Postcode and Abn are all empty.')
+                for key, value in {'name': self.name, 'postcode': self.postcode, 'abn': self.abn}.items():
+                    
+                    if value != [] and value != '':
+                        not_none_key.append(key)
+                if len(not_none_key) == 0:
+                    st.write('Caution: Company Name, Postcode and Abn are all empty.')
 
-                if self.num_of_rows == '':
-                    query = f'''select * from whs_ilab2.temp;'''
+                    if self.num_of_rows == '':
+                        query = f'''select * from whs_ilab2.temp;'''
+                    else:
+                        query = f'''select * from whs_ilab2.temp limit {self.num_of_rows};'''
+                    # execute query
+                    cursor.execute(query)
+                    # fetch all the results
+                    columns = [desc[0] for desc in cursor.description]
+                    self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns)
+                    st.write(2)
+                                
+                        
+
                 else:
-                    query = f'''select * from whs_ilab2.temp limit {self.num_of_rows};'''
-                # execute query
-                cursor.execute(query)
-                # fetch all the results
-                columns = [desc[0] for desc in cursor.description]
-                self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns)
+                    name_str = f'name ~* {self.name}'
+                    postcode_str = f"postcode = '{self.postcode}'"
+                    abn_str = f'abn ~* {self.abn}'
 
-                     
-            
+                    reference = {'name': name_str, 'postcode': postcode_str, 'abn': abn_str}
 
+                    if len(not_none_key) == 1:
+                            where_clause = reference[not_none_key[0]]
+                    elif len(not_none_key) == 2:
+                            where_clause = reference[not_none_key[0]] + ' and ' + reference[not_none_key[1]]
+                    else:
+                            where_clause = reference[not_none_key[0]] + ' and ' + reference[not_none_key[1]] + ' and ' + reference[not_none_key[2]]
+                    if self.num_of_rows == '':
+                            query = f'''select name, website, location, abn, postcode from whs_ilab2.temp where {where_clause};'''
+
+                    else:
+                            query = f'''select name, website, location, abn, postcode from whs_ilab2.temp where {where_clause} limit {self.num_of_rows};'''    
+                        # execute query
+                    cursor.execute(query)
+                    # fetch all the results
+                    columns = [desc[0] for desc in cursor.description]
+                    self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns)
+                    st.write(3)
             else:
-                name_str = f'name like "%{self.name}%"'
-                postcode_str = f'postcode = {self.postcode}'
-                abn_str = f'abn = {self.abn}'
-
-                reference = {'name': name_str, 'postcode': postcode_str, 'abn': abn_str}
-
-                if len(not_none_key) == 1:
-                    where_clause = reference[not_none_key[0]]
-                elif len(not_none_key) == 2:
-                    where_clause = reference[not_none_key[0]] + ' and ' + reference[not_none_key[1]]
-                else:
-                    where_clause = reference[not_none_key[0]] + ' and ' + reference[not_none_key[1]] + ' and ' + reference[not_none_key[2]]
-                if self.num_of_rows == '':
-                    query = f'''select * from whs_ilab2.temp where {where_clause};'''
-
-                else:
-                    query = f'''select * from whs_ilab2.temp where {where_clause} limit {self.num_of_rows};'''    
-                # execute query
-                cursor.execute(query)
-                # fetch all the results
-                columns = [desc[0] for desc in cursor.description]
-                self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns)
-
+                 st.write('No results found.')
+                 exit()
         # clear temp table
         cursor.execute('truncate whs_ilab2.temp;')
         self.con.commit()
