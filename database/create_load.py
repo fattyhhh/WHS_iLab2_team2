@@ -38,24 +38,35 @@ cursor.execute('''
 # create abn table
 cursor.execute('''
     create table if not exists whs_ilab2.abn (
-              name text not null,
-              website text null, 
-              location text null,
-              abn text null)
+                name text not null,
+                website text null, 
+                location text null,
+                detail_url text null,
+                abn text null,
+                abn_look_up text null,
+                contents text null,
+                postcode int null,
+                abn_website text null)
               ''')
 
 # read data from yellowpages5.xlsx into a pandas dataframe
-df_abn = pd.read_excel('yellowpages5.xlsx')
+df_abn = pd.read_excel('construction_data.xlsx')
 
 # load data into abn table
 for i in range(len(df_abn)):
     cursor.execute('''
-        insert into whs_ilab2.abn (name, website, location, abn)
-        values (%s, %s, %s, %s)''',
+        insert into whs_ilab2.abn (name, website, location, detail_url, abn, abn_look_up, contents, postcode, abn_website)
+        values (%s, %s, %s, %s, %s, %s, %s, %s, %s)''',
         (df_abn.iloc[i]['name'],
          df_abn.iloc[i]['website'],
          df_abn.iloc[i]['location'],
-         df_abn.iloc[i]['abn']))
+         df_abn.iloc[i]['detail_url'],
+         df_abn.iloc[i]['abn'],
+         df_abn.iloc[i]['abn_look_up'],
+         df_abn.iloc[i]['contents'],
+         df_abn.iloc[i]['postcode'],
+         df_abn.iloc[i]['abn_website']))
+         
 
 
 # commit change
