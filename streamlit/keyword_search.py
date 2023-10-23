@@ -25,15 +25,16 @@ def Abn_search(keywords,df):
 
         # drop construction from the keywords to get more precise results
         keyword_token = [keyword for keyword in keyword_token if keyword != 'construction']
-        
+
         # loop on tokenized keywords
         for keyword in keyword_token:
             if keyword in content.lower():
         
                 
-                abn = row['abn_website'] if not pd.isnull(row['abn_website']) else (
-                    row['abn_look_up'] if not pd.isnull(row['abn_look_up']) else row['abn']
-                    )
+                abn = row['abn_website'] if row['abn_website'] != 'nan' else (
+                     row['abn_look_up'] if row['abn_look_up'] != 'nan' else row['abn']
+                     )
+                
 
                 results.append({
                         'abn': abn,

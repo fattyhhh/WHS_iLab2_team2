@@ -33,7 +33,7 @@ class Search:
             for key, value in {'name': self.name, 'postcode': self.postcode, 'abn': self.abn}.items():
                 if value != [] and value != '':
                             not_none_key.append(key)
-            st.write(not_none_key)   
+
             if len(not_none_key) == 0:
                 st.write('Please enter at least one search criteria.')
             else:
@@ -127,9 +127,7 @@ class Search:
                  st.write('No results found.')
                  exit()
 
-        # trim the last two characters of abn if not nan
 
-        self.df_result['abn'][self.df_result['abn'] != 'nan'] = self.df_result['abn'][self.df_result['abn'] != 'nan'].str[:-2]
         # clear temp table
         cursor.execute('truncate whs_ilab2.temp;')
         self.con.commit()
