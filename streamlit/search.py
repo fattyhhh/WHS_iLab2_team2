@@ -28,7 +28,7 @@ class Search:
 
         
         if self.activity == []:
-            # create query 
+            # create query automatively based on the input
             not_none_key = []
             for key, value in {'name': self.name, 'postcode': self.postcode, 'abn': self.abn}.items():
                 if value != [] and value != '':
@@ -59,13 +59,13 @@ class Search:
                 # fetch all the results
                 columns_name = [desc[0] for desc in cursor.description]
                 self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns_name).reset_index(drop = True)
-                st.write(1)
+
         # if business activity is not empty
         elif self.activity != []:
             activities = self.activity
             result_1 = Abn_search(activities, df_abn)
             if result_1.empty == False:
-                st.write([result_1 is None])
+
                 for i in range(len(result_1)):
                     cursor.execute('''
                     insert into whs_ilab2.temp (name, website, location, abn, postcode)
@@ -95,7 +95,7 @@ class Search:
                     # fetch all the results
                     columns = [desc[0] for desc in cursor.description]
                     self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns)
-                    st.write(2)
+                    
                                 
                         
 
@@ -122,7 +122,7 @@ class Search:
                     # fetch all the results
                     columns = [desc[0] for desc in cursor.description]
                     self.df_result = pd.DataFrame(cursor.fetchall(), columns = columns)
-                    st.write(3)
+                    
             else:
                  st.write('No results found.')
                  exit()
