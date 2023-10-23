@@ -126,6 +126,10 @@ class Search:
             else:
                  st.write('No results found.')
                  exit()
+
+        # trim the last two characters of abn if not nan
+
+        self.df_result['abn'][self.df_result['abn'] != 'nan'] = self.df_result['abn'][self.df_result['abn'] != 'nan'].str[:-2]
         # clear temp table
         cursor.execute('truncate whs_ilab2.temp;')
         self.con.commit()
