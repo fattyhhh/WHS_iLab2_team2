@@ -48,6 +48,7 @@ if st.button("Search"):
     # display result
     search_result = search.df_result
     if search_result.empty == False:
+        st.write("Results found: " + str(len(search_result)))
         st.table(search_result.assign(hack='').set_index('hack'))
         df=search_result.copy()
         csv=df.to_csv(index=False).encode('utf-8')
