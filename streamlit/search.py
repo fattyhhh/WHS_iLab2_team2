@@ -37,9 +37,9 @@ class Search:
             if len(not_none_key) == 0:
                 st.write('Please enter at least one search criteria.')
             else:
-                name_str = f'name ~* {self.name}'
+                name_str = f"name ~* '{self.name}'"
                 postcode_str = f"postcode = '{self.postcode}'"
-                abn_str = f'abn ~* {self.abn}'
+                abn_str = f"abn ~* '{self.abn}'"
 
                 reference = {'name': name_str, 'postcode': postcode_str, 'abn': abn_str}
 
@@ -100,9 +100,9 @@ class Search:
                         
 
                 else:
-                    name_str = f'name ~* {self.name}'
+                    name_str = f"name ~* '{self.name}'"
                     postcode_str = f"postcode = '{self.postcode}'"
-                    abn_str = f'abn ~* {self.abn}'
+                    abn_str = f"abn ~* '{self.abn}'"
 
                     reference = {'name': name_str, 'postcode': postcode_str, 'abn': abn_str}
 
