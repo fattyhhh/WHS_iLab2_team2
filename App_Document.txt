@@ -45,7 +45,7 @@ Users could download our project coding at https://github.com/fattyhhh/WHS_iLab2
 
 The user could then navigate to our project and execute the command below to deploy our application to their local network: 
 
-"python database/create_load.py" (Make sure you have the local postgreSQL drive and change the database credentials in the create_load.py)
+"python database/create_load.py" (Make sure you have the local postgreSQL drive and change the database credentials in the database/create_load.py and streamlit/search.py)
 
 “streamlit run streamlit/main.py”
 
